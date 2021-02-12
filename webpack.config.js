@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
 module.exports = {
+  context: path.resolve(__dirname, 'src'),
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
@@ -12,7 +13,7 @@ module.exports = {
     host: '127.0.0.1',
     hot: true,
   },
-  entry: './src/index.js',
+  entry: './index.js',
   module: {
     rules: [
       {
@@ -35,7 +36,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: './index.html',
     }),
     new CleanWebpackPlugin(),
   ],
