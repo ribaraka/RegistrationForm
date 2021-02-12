@@ -7,10 +7,8 @@ const password = document.querySelector('#password');
 const buttonSign = document.querySelector('.button-sign');
 const form = document.querySelector('form');
 let isError = true;
-// const inputError = document.createElement('div');
-// inputError.className = 'error-message';
 
-function createError(div) {
+function errorEmptyInput(div) {
   const inputError = document.createElement('div');
   inputError.className = 'error-message';
   inputError.textContent = 'required';
@@ -20,38 +18,44 @@ function createError(div) {
 function checkFirstName() {
   const firstNameValue = firstName.value.trim();
   if (!firstNameValue){
-    createError(firstName);
+    errorEmptyInput(firstName);
    }
 }
 
 function checkLastName() {
   const lastNameValue = lastName.value.trim();
   if (!lastNameValue){
-    createError(lastName);
+    errorEmptyInput(lastName);
   }
+}
+
+function emailIsValid (email) {
+  return /\S+@\S+\.\S+/.test(email)
 }
 
 function checkEmailValue() {
   const emailValue = email.value.trim();
-  isError = emailValue === '';
+  if (!emailValue){
+    errorEmptyInput(email);
+  }
+  let check = emailIsValid(emailValue);
+  console.log(check);
 }
 
 function checkPassword() {
   const passwordValue = password.value.trim();
-  isError = passwordValue === '';
-  if (isError) {
-
+  if (!passwordValue){
+    errorEmptyInput(password);
   }
 }
 
 function handleSignButton(e) {
   checkFirstName();
   checkLastName();
-  // checkEmailValue();
-  // checkPassword();
+  checkEmailValue();
+  checkPassword();
   e.preventDefault();
 
 }
 
 buttonSign.addEventListener('click', handleSignButton);
-
