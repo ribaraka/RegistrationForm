@@ -11,8 +11,8 @@ let isError = true;
 function errorEmptyInput(div) {
   const inputError = document.createElement('div');
   inputError.className = 'error-message';
-  inputError.textContent = 'required';
   div.parentNode.insertBefore(inputError, div);
+  return inputError;
 }
 
 function checkFirstName() {
@@ -35,17 +35,17 @@ function emailIsValid (email) {
 
 function checkEmailValue() {
   const emailValue = email.value.trim();
-  if (!emailValue){
-    errorEmptyInput(email);
+  if (!emailValue || !emailIsValid(emailValue)){
+    let error = errorEmptyInput(email);
+    error.textContent = 'email is invalid';
   }
-  let check = emailIsValid(emailValue);
-  console.log(check);
 }
 
 function checkPassword() {
   const passwordValue = password.value.trim();
-  if (!passwordValue){
-    errorEmptyInput(password);
+  if (!passwordValue || passwordValue.length > 64 || passwordValue.length < 8){
+    let error = errorEmptyInput(password);
+    error.textContent = '8 - 64 characters';
   }
 }
 
@@ -55,7 +55,6 @@ function handleSignButton(e) {
   checkEmailValue();
   checkPassword();
   e.preventDefault();
-
 }
 
 buttonSign.addEventListener('click', handleSignButton);
