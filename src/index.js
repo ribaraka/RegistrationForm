@@ -1,39 +1,48 @@
-import '/assets/css/form.css'
+import '/assets/css/form.css';
+const zxcvbn = require('zxcvbn');
+import $ from 'jquery';
 
-const firstName = document.querySelector('#first-name');
-const lastName = document.querySelector('#last-name');
+const firstName = document.querySelector('#firstname');
+const lastName = document.querySelector('#lastname');
 const email = document.querySelector('#email');
 const password = document.querySelector('#password');
-const buttonSign = document.querySelector('#btn-sup');
+const field = document.querySelector('#form');
+const passwordCheck = document.querySelector('#dynamicText');
 
-function errorInput(div) {
+function errorInput(input) {
+  // if(input.classList.contains('is-invalid')){
+  //   return ;
+  // }
   const inputError = document.createElement('div');
-  inputError.className = 'error-message';
-  div.parentNode.insertBefore(inputError, div);
+  input.classList.add('is-invalid');
+  inputError.classList.add('invalid-feedback');
+  input.parentNode.appendChild(inputError);
   return inputError;
 }
 
 function checkFirstName() {
   const firstNameValue = firstName.value.trim();
-  if (!firstNameValue){
-    errorInput(firstName);
-   }
+  if (!firstNameValue) {
+    let error = errorInput(firstName);
+    error.textContent = 'the form must be filled';
+  }
 }
 
 function checkLastName() {
   const lastNameValue = lastName.value.trim();
-  if (!lastNameValue){
-    errorInput(lastName);
+  if (!lastNameValue) {
+    let error = errorInput(lastName);
+    error.textContent = 'the form must be filled';
   }
 }
 
-function emailIsValid (email) {
+function emailIsValid(email) {
   return /\S+@\S+\.\S+/.test(email)
 }
 
 function checkEmailValue() {
   const emailValue = email.value.trim();
-  if (!emailValue || !emailIsValid(emailValue)){
+  if (!emailValue || !emailIsValid(emailValue)) {
     let error = errorInput(email);
     error.textContent = 'email is invalid';
   }
@@ -43,57 +52,50 @@ function checkPassword() {
   const passwordValue = password.value.trim();
   if (!passwordValue || passwordValue.length > 64 || passwordValue.length < 8){
     let error = errorInput(password);
-    error.textContent =  checkPassStrength(passwordValue);
+    error.textContent = 'the form must be filled';
   }
 }
 
-function scorePassword(pass) {
-  let score = 0;
-  if (!pass)
-    return score;
+$('#password').keyup(function() {
+  const passwordValue = password.value.trim();
+  let text = commentScore(zxcvbn(passwordValue).score);
+  $(passwordCheck).text(text);
+});
 
-  // award every unique letter until 5 repetitions
-  let letters = {};
-  for (let i=0; i < pass.length; i++) {
-    letters[pass[i]] = (letters[pass[i]] || 0) + 1;
-    score += 5.0 / letters[pass[i]];
-  }
-
-  // bonus points for mixing it up
-  let variations = {
-    digits: /\d/.test(pass),
-    lower: /[a-z]/.test(pass),
-    upper: /[A-Z]/.test(pass),
-    nonWords: /\W/.test(pass),
-  }
-
-  let variationCount = 0;
-  for (let check in variations) {
-    variationCount += (variations[check] === true) ? 1 : 0;
-  }
-  score += (variationCount - 1) * 10;
-  console.log(typeof score, 'pass', pass);
-  return score;
-}
-
-function checkPassStrength(pass) {
-  let score = scorePassword(pass);
-  if (score > 80)
-    return "strong";
-  if (score > 60)
-    return "good";
-  if (score >= 30)
-    return "weak";
-
-  return "";
-}
-
-function handleSignButton(e) {
+function handleSignUp(e) {
   // checkFirstName();
   // checkLastName();
   // checkEmailValue();
-  // checkPassword();
+  checkPassword();
   e.preventDefault();
 }
 
-buttonSign.addEventListener('click', handleSignButton);
+function commentScore(score) {
+
+  return (score === 0) ? 'too guessable: risky password.' :
+    (score === 1) ? 'very guessable: protection from throttled online attacks.!' :
+      (score === 2) ? 'somewhat guessable: protection from unthrottled online attacks.' :
+        (score === 3) ? 'safely unguessable: moderate protection from offline slow-hash scenario.' :
+          'very unguessable: strong protection from offline slow-hash scenario.';
+
+  // let text = zxcvbn(value).score + '';
+  // switch (text) {
+  //   case '0':
+  //       text += 'too guessable: risky password.';
+  //       break;
+  //   case 1:
+  //     text = 'very guessable: protection from throttled online attacks.';
+  //     break;
+  //       case 2:
+  //         text = 'somewhat guessable: protection from unthrottled online attacks.';
+  //       break;
+  //       case 3:
+  //         text = 'safely unguessable: moderate protection from offline slow-hash scenario.';
+  //       break;
+  //       case 4:
+  //         text = 'very unguessable: strong protection from offline slow-hash scenario.';
+  //       break;
+  //   }
+}
+
+field.addEventListener('submit', handleSignUp);
