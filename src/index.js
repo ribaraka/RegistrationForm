@@ -6,39 +6,56 @@ const email = document.querySelector('#email');
 const password = document.querySelector('#password');
 const passwordCheck = document.querySelector('#dynamicText');
 const button = document.querySelector('#btn-sign');
-const Inputs = document.querySelectorAll('.form-control');
+const inputs = document.querySelectorAll('.form-control');
 
-function errorInput(input) {
-      input.classList.add('is-invalid');
-      const inputError = document.createElement('div');
-      inputError.classList.add('invalid-feedback');
-      input.parentNode.appendChild(inputError);
-      return inputError;
+function containsInvalid(input) {
+  return input.classList.contains('is-invalid');
 }
 
-function validValue(input) {
+function errorInput(input) {
+  input.classList.add('is-invalid');
+  const inputError = document.createElement('div');
+  inputError.classList.add('invalid-feedback');
+  input.parentNode.appendChild(inputError);
+  return inputError;
+}
+
+function validateInput(input) {
+  if (input.nextElementSibling){
+    input.nextElementSibling.remove();
+  }
   input.classList.remove('is-invalid');
   input.classList.add('is-valid');
 }
 
 function isEmptyInput() {
-  Inputs.forEach(input => {
+  inputs.forEach(input => {
     input.value.trim();
-    if (!input.value && !input.classList.contains('is-invalid')) {
+    if (!input.value && !containsInvalid(input)) {
       const inputError = errorInput(input);
       inputError.textContent = 'the form must be filled';
     }
-    if (input.value && input.classList.contains('is-invalid')){
-      validValue(input);
+    if (input.value) {
+      validateInput(input);
     }
   });
 }
 
 function limitLength() {
-  if (firstName.value.length > 3){
-    console.log('f');
+  if (firstName.value.length > 255 && !containsInvalid(firstName)) {
+    const inputError = errorInput(firstName);
+    inputError.textContent = 'max 255';
   }
 
+  if (lastName.value.length > 255 && !containsInvalid(lastName)) {
+    const inputError = errorInput(lastName);
+    inputError.textContent = 'max 255';
+}
+
+  if ((password.value.length < 8 || password.value.length > 64) && !containsInvalid(password)){
+    const inputError = errorInput(password);
+    inputError.textContent = 'password must be between 8 and 64 characters';
+  }
 }
 
 function emailIsValid(email) {
@@ -46,38 +63,30 @@ function emailIsValid(email) {
 }
 
 function checkEmailValue() {
-  const emailValue = email.value.trim();
-  if (!emailValue || !emailIsValid(emailValue)) {
+  if (!emailIsValid(email.value) && !containsInvalid(email)) {
     let error = errorInput(email);
-    error.textContent = 'email is invalid';
+    error.textContent = 'E-mail is invalid';
   }
 }
 
-function checkPassword() {
-  const passwordValue = password.value.trim();
-  if (!passwordValue || passwordValue.length > 64 || passwordValue.length < 8) {
-    let error = errorInput(password);
-    error.textContent = 'the form must be filled';
-  }
+function isError() {
+  return [...inputs].some(input =>{
+     return containsInvalid(input);
+  })
 }
 
-// $('#password').keyup(function() {
-//   const passwordValue = password.value.trim();
-//   console.log(commentScore(passwordValue));
-// let text = commentScore(zxcvbn(passwordValue).score);
-// $(passwordCheck).text(text);
-// });
-
-function handleSignUp(e) {
+function handleSignUp() {
   isEmptyInput();
-  // checkEmailValue();
-  // checkPassword();
+  checkEmailValue();
   limitLength();
+  if (!isError()){
+    window.location.href = 'result.html';
+  }
 }
-
 
 function commentScore(password) {
   let text = zxcvbn(password).score;
+  console.log(text);
   switch (text) {
     case 0:
       text = 'too guessable: risky password.';
@@ -99,5 +108,10 @@ function commentScore(password) {
   return text;
 }
 
+function passwordCheckMassage() {
+  const passwordValue = password.value.trim();
+  passwordCheck.textContent = commentScore(passwordValue);
+}
 
 button.addEventListener('click', handleSignUp);
+password.addEventListener("keyup", passwordCheckMassage);
