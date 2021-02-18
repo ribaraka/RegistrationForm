@@ -41,16 +41,17 @@ function isEmptyInput() {
   });
 }
 
-function limitLength() {
-  if (firstName.value.length > 255 && !containsInvalid(firstName)) {
-    const inputError = errorInput(firstName);
-    inputError.textContent = 'max 255';
+function limitForName(...inputs) {
+  for (let input of inputs) {
+    if (input.value.length > 5 && !containsInvalid(input)) {
+      const inputError = errorInput(input);
+      inputError.textContent = 'max 255';
+    }
   }
-
-  if (lastName.value.length > 255 && !containsInvalid(lastName)) {
-    const inputError = errorInput(lastName);
-    inputError.textContent = 'max 255';
 }
+
+function limitLength() {
+  limitForName(firstName, lastName);
 
   if ((password.value.length < 8 || password.value.length > 64) && !containsInvalid(password)){
     const inputError = errorInput(password);
