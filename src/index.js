@@ -1,5 +1,8 @@
 import '/assets/css/form.css';
+
 const zxcvbn = require('zxcvbn');
+const validator = require("email-validator");
+
 const firstName = document.querySelector('#firstname');
 const lastName = document.querySelector('#lastname');
 const email = document.querySelector('#email');
@@ -21,7 +24,7 @@ function errorInput(input) {
 }
 
 function validateInput(input) {
-  if (input.nextElementSibling){
+  if (input.nextElementSibling) {
     input.nextElementSibling.remove();
   }
   input.classList.remove('is-invalid');
@@ -43,7 +46,7 @@ function isEmptyInput() {
 
 function limitForName(...inputs) {
   for (let input of inputs) {
-    if (input.value.length > 5 && !containsInvalid(input)) {
+    if (input.value.length > 255 && !containsInvalid(input)) {
       const inputError = errorInput(input);
       inputError.textContent = 'max 255';
     }
@@ -53,36 +56,37 @@ function limitForName(...inputs) {
 function limitLength() {
   limitForName(firstName, lastName);
 
-  if ((password.value.length < 8 || password.value.length > 64) && !containsInvalid(password)){
+  if ((password.value.length < 8 || password.value.length > 64) && !containsInvalid(password)) {
     const inputError = errorInput(password);
     inputError.textContent = 'password must be between 8 and 64 characters';
   }
 }
 
-function emailIsValid(email) {
-  return /\S+@\S+\.\S+/.test(email)
-}
-
 function checkEmailValue() {
-  if (!emailIsValid(email.value) && !containsInvalid(email)) {
+  if (!validator.validate(email.value) && !containsInvalid(email)) {
     let error = errorInput(email);
     error.textContent = 'E-mail is invalid';
   }
 }
 
 function isError() {
-  return [...inputs].some(input =>{
-     return containsInvalid(input);
+  return [...inputs].some(input => {
+    return containsInvalid(input);
   })
 }
 
+function getFormValues() {
+
+}
+
 function handleSignUp() {
-  isEmptyInput();
-  checkEmailValue();
-  limitLength();
-  if (!isError()){
-    window.location.href = 'result.html';
-  }
+  // isEmptyInput();
+  // limitLength();
+  // checkEmailValue();
+  // if (!isError()) {
+  //   window.location.href = 'result.html';
+  // }
+  console.log(firstName.value)
 }
 
 function commentScore(password) {
