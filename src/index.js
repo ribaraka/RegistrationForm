@@ -1,141 +1,163 @@
+// eslint-disable-next-line import/no-unresolved
+import '/assets/css/form.css';
 
-  import '/assets/css/form.css';
+const validatorPassword = require('zxcvbn');
+const validatorEmail = require('email-validator');
 
-  const zxcvbn = require('zxcvbn');
-  const validator = require("email-validator");
+const firstName = document.querySelector('#firstname');
+const lastName = document.querySelector('#lastname');
+const email = document.querySelector('#email');
+const password = document.querySelector('#password');
+const button = document.querySelector('#btn-sign');
+const inputs = document.querySelectorAll('.form-control');
 
-  const firstName = document.querySelector('#firstname');
-  const lastName = document.querySelector('#lastname');
-  const email = document.querySelector('#email');
-  const password = document.querySelector('#password');
-  const passwordCheck = document.querySelector('#dynamicText');
-  const button = document.querySelector('#btn-sign');
-  const inputs = document.querySelectorAll('.form-control');
+function checkAndRemoveError(input) {
+  if (input.nextElementSibling) {
+    input.nextElementSibling.remove();
+  }
+}
 
-  function containsInvalid(input) {
-    return input.classList.contains('is-invalid');
+function containsInvalid(input) {
+  return input.classList.contains('is-invalid');
+}
+
+function errorInput(input) {
+  checkAndRemoveError(input);
+  input.classList.add('is-invalid');
+  const inputError = document.createElement('div');
+  inputError.classList.add('invalid-feedback');
+  input.parentNode.appendChild(inputError);
+  return inputError;
+}
+
+function validateInput(input) {
+  checkAndRemoveError(input);
+  input.classList.remove('is-invalid');
+  input.classList.add('is-valid');
+}
+
+function isEmptyInput(input) {
+  input.value.trim();
+  if (!input.value) {
+    return 'the form must be filled';
   }
 
-  function errorInput(input) {
-    input.classList.add('is-invalid');
-    const inputError = document.createElement('div');
-    inputError.classList.add('invalid-feedback');
-    input.parentNode.appendChild(inputError);
-    return inputError;
+  return '';
+}
+
+function limitName(input) {
+  if (input.value.length > 255) {
+    return 'the maximum number of characters is 255';
   }
 
-  function validateInput(input) {
-    if (input.nextElementSibling) {
-      input.nextElementSibling.remove();
-    }
-    input.classList.remove('is-invalid');
-    input.classList.add('is-valid');
+  return '';
+}
+
+function limitPassword(input) {
+  if (input.value.length < 8 || input.value.length > 64) {
+    return 'password must be between 8 and 64 characters';
   }
 
-  function isEmptyInput(input) {
-    input.value.trim();
-    if (!input.value && !containsInvalid(input)) {
-      const inputError = errorInput(input);
-      inputError.textContent = 'the form must be filled';
-      return false;
-    }
-    if (input.value) {
-      validateInput(input);
-      return true;
-    }
+  return '';
+}
+
+function checkEmailValue(input) {
+  if (!validatorEmail.validate(input.value)) {
+    return 'E-mail is invalid';
   }
 
-  function limitName(input) {
-    if (input.value.length > 255 && !containsInvalid(input)) {
-      const inputError = errorInput(input);
-      inputError.textContent = 'max 255';
-      return false
-    }
-    return true;
-  }
+  return '';
+}
 
-  function limitPassword(input) {
-    if ((password.value.length < 8 || password.value.length > 64) && !containsInvalid(password)) {
-      const inputError = errorInput(password);
-      inputError.textContent = 'password must be between 8 and 64 characters';
-      return false;
-    }
-    return true;
-  }
+function isError() {
+  return [...inputs].some(input => {
+    return containsInvalid(input);
+  });
+}
 
-  function checkEmailValue(input) {
-    if (!validator.validate(email.value) && !containsInvalid(email)) {
-      let error = errorInput(email);
-      error.textContent = 'E-mail is invalid';
-      return false;
-    }
-    return true;
-  }
+function showErrorMassage(input, errorMessage) {
+  const errorBar = errorInput(input);
+  errorBar.textContent = errorMessage;
+}
 
-  function isError() {
-    return [...inputs].some(input => {
-      return containsInvalid(input);
-    })
-  }
+function handleSignUp() {
+  const form = [
+    {
+      input: firstName,
+      validators: [isEmptyInput, limitName],
+    },
+    {
+      input: lastName,
+      validators: [isEmptyInput, limitName],
+    },
+    {
+      input: email,
+      validators: [isEmptyInput, checkEmailValue],
+    },
+    {
+      input: password,
+      validators: [isEmptyInput, limitPassword],
+    },
+  ];
 
+  form.forEach(element => {
+    let errorMsg = element.validators.reduce((accumulator, validator) => {
+      if (accumulator !== '') {
 
-  function handleSignUp() {
-    let form = [
-      {
-        inputName: firstName,
-        value: firstName.value,
-        validators: [isEmptyInput(firstName), limitName(firstName)],
-      },
-      {
-        inputName: lastName,
-        value: lastName.value,
-        validators: [isEmptyInput(lastName), limitName(lastName)],
-      },
-      {
-        inputName: email,
-        value: email.value,
-        validators: [isEmptyInput(email), checkEmailValue(email)],
-      },
-      {
-        inputName: password,
-        value: password.value,
-        validators: [isEmptyInput(password), limitPassword(password)],
+        return accumulator;
       }
-    ]
-    if (!isError()) {
-      window.location.href = 'result.html';
+
+      return validator(element.input);
+    }, '');
+
+    if (errorMsg !== '') {
+      showErrorMassage(element.input, errorMsg);
+    } else {
+      validateInput(element.input);
     }
+  });
+
+  if (!isError()) {
+    return (window.location.href = 'result.html');
+  }
+}
+
+function commentScore(pass) {
+  let text = validatorPassword(pass).score;
+  switch (text) {
+    case 0:
+      text = 'risky password';
+      break;
+    case 1:
+      text = 'weak password';
+      break;
+    case 2:
+      text = 'medium password';
+      break;
+    case 3:
+      text = 'safely password';
+      break;
+    case 4:
+      text = 'very unguessable: strong protection.';
+      break;
+    default:
+      break;
   }
 
+  return text;
+}
 
-  function commentScore(password) {
-    let text = zxcvbn(password).score;
-    switch (text) {
-      case 0:
-        text = 'too guessable: risky password.';
-        break;
-      case 1:
-        text = 'very guessable: protection from throttled online attacks.';
-        break;
-      case 2:
-        text = 'somewhat guessable: protection from unthrottled online attacks.';
-        break;
-      case 3:
-        text = 'safely unguessable: moderate protection.';
-        break;
-      case 4:
-        text = 'very unguessable: strong protection.';
-        break;
-    }
-
-    return text;
+function passwordCheckMassage() {
+  const passwordValue = password.value.trim();
+  if (password.nextElementSibling) {
+    password.nextElementSibling.remove();
   }
+  const passwordCheck = document.createElement('div');
+  passwordCheck.textContent = commentScore(passwordValue);
+  password.parentNode.appendChild(passwordCheck);
+}
 
-  function passwordCheckMassage() {
-    const passwordValue = password.value.trim();
-    passwordCheck.textContent = commentScore(passwordValue);
-  }
-
-    button.addEventListener('click', handleSignUp);
-    password.addEventListener("keyup", passwordCheckMassage);
-
+if (button) {
+  button.addEventListener('click', handleSignUp);
+  password.addEventListener('keyup', passwordCheckMassage);
+}
