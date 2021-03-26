@@ -80,48 +80,6 @@ function showErrorMassage(input, errorMessage) {
   errorBar.textContent = errorMessage;
 }
 
-function handleSignUp() {
-  const form = [
-    {
-      input: firstName,
-      validators: [isEmptyInput, limitName],
-    },
-    {
-      input: lastName,
-      validators: [isEmptyInput, limitName],
-    },
-    {
-      input: email,
-      validators: [isEmptyInput, checkEmailValue],
-    },
-    {
-      input: password,
-      validators: [isEmptyInput, limitPassword],
-    },
-  ];
-
-  form.forEach(element => {
-    let errorMsg = element.validators.reduce((accumulator, validator) => {
-      if (accumulator !== '') {
-
-        return accumulator;
-      }
-
-      return validator(element.input);
-    }, '');
-
-    if (errorMsg !== '') {
-      showErrorMassage(element.input, errorMsg);
-    } else {
-      validateInput(element.input);
-    }
-  });
-
-  if (!isError()) {
-    return (window.location.href = 'result.html');
-  }
-}
-
 function commentScore(pass) {
   let text = validatorPassword(pass).score;
   switch (text) {
@@ -155,6 +113,80 @@ function passwordCheckMassage() {
   const passwordCheck = document.createElement('div');
   passwordCheck.textContent = commentScore(passwordValue);
   password.parentNode.appendChild(passwordCheck);
+}
+
+function handleSignUp() {
+  const form = [
+    {
+      input: firstName,
+      validators: [isEmptyInput, limitName],
+    },
+    {
+      input: lastName,
+      validators: [isEmptyInput, limitName],
+    },
+    {
+      input: email,
+      validators: [isEmptyInput, checkEmailValue],
+    },
+    {
+      input: password,
+      validators: [isEmptyInput, limitPassword],
+    },
+  ];
+
+  form.forEach(element => {
+    let errorMsg = element.validators.reduce((accumulator, validator) => {
+      if (accumulator !== '') {
+
+        return accumulator;
+      }
+
+      return validator(element.input);
+    }, '');
+    if (errorMsg !== '') {
+      showErrorMassage(element.input, errorMsg);
+    } else {
+      validateInput(element.input);
+    }
+  });
+
+  if (!isError()) {
+    let formData = getFormData(form);
+
+    sendRequest('POST', url, formData)
+      .then(data => console.log(data))
+      .catch(err => console.log(err));
+    //return (window.location.href = 'result.html');
+  }
+}
+
+const url = 'http://localhost:8081/form';
+
+function sendRequest(method, url, body = null){
+  return fetch(url, {
+    method: method,
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then(response =>{
+    return response.json()
+  })
+}
+
+function getFormData(form) {
+  let formData = [];
+  form.forEach(element => {
+    formData.push(new FormInput(element.input.parentElement.innerText, element.input.value));
+  });
+
+  return formData
+}
+
+function FormInput(input,value) {
+  this.input = input;
+  this.value = value;
 }
 
 if (button) {
