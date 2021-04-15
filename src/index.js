@@ -153,7 +153,6 @@ function handleSignUp() {
 
   if (!isError()) {
     let formData = getFormData(form);
-
     sendRequest('POST', url, formData)
       .then(data => console.log(data))
       .catch(err => console.log(err));
@@ -178,15 +177,10 @@ function sendRequest(method, url, body = null){
 function getFormData(form) {
   let formData = [];
   form.forEach(element => {
-    formData.push(new FormInput(element.input.parentElement.innerText, element.input.value));
+    formData.push([element.input.id, element.input.value]);
   });
 
-  return formData
-}
-
-function FormInput(input,value) {
-  this.input = input;
-  this.value = value;
+  return Object.fromEntries(formData);
 }
 
 if (button) {
