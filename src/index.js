@@ -1,12 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap'
-// import 'bootstrap/scss/_modal.scss'
-// import 'bootstrap/dist/js/bootstrap.esm.min'
-// import 'bootstrap/dist/js/bootstrap'
-// import 'bootstrap/dist/js/bootstrap.bundle'
-// import 'bootstrap/dist/js/bootstrap.esm'
-// import 'bootstrap/dist/js/bootstrap.'
-
+import 'bootstrap/dist/js/bootstrap.min'
+import 'mdbootstrap/css/mdb.min.css'
 const validatorPassword = require('zxcvbn');
 const validatorEmail = require('email-validator');
 
