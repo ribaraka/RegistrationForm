@@ -212,3 +212,8 @@ if (button) {
   password.addEventListener('keyup', passwordCheckMassage);
   email.addEventListener('keyup', checkBusyEmail);
 }
+
+const emailIn = document.querySelector('#emailIn');
+const passwordIn = document.querySelector('#passwordIn');
+const buttonIn = document.querySelector('#btn-signIn');
+
