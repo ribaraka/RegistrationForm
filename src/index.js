@@ -159,7 +159,7 @@ function handleSignUp() {
     sendRequest('POST', url, formData)
       .then(data => console.log(data))
       .catch(err => console.log(err));
-    return (window.location.href = 'result.html');
+    // return (window.location.href = 'result.html');
   }
 }
 
@@ -207,13 +207,52 @@ function getMassageForBusyEmail(email) {
     })
 }
 
+const emailIn = document.querySelector('#emailIn');
+const passwordIn = document.querySelector('#passwordIn');
+const buttonIn = document.querySelector('#btn-signIn');
+
+
+function handleSignIn() {
+  const SignInform = [
+    {
+      input: emailIn,
+      validators: [isEmptyInput, checkEmailValue],
+    },
+    {
+      input: passwordIn,
+      validators: [isEmptyInput, limitPassword],
+    },
+  ];
+
+  SignInform.forEach(element => {
+    let errorMsg = element.validators.reduce((accumulator, validator) => {
+      if (accumulator !== '') {
+
+        return accumulator;
+      }
+
+      return validator(element.input);
+    }, '');
+    if (errorMsg !== '') {
+      showErrorMassage(element.input, errorMsg);
+    } else {
+      validateInput(element.input);
+    }
+  });
+
+  if (!isError()) {
+    let formData = getFormData(SignInform);
+    sendRequest('POST', 'http://localhost:8081/login', formData)
+      .then(data => console.log(data))
+      .catch(err => console.log(err));
+  }
+}
+
+
 if (button) {
   button.addEventListener('click', handleSignUp);
   password.addEventListener('keyup', passwordCheckMassage);
   email.addEventListener('keyup', checkBusyEmail);
+  buttonIn.addEventListener('click', handleSignIn);
 }
-
-const emailIn = document.querySelector('#emailIn');
-const passwordIn = document.querySelector('#passwordIn');
-const buttonIn = document.querySelector('#btn-signIn');
 
